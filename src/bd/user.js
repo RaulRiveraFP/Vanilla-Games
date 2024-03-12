@@ -13,13 +13,33 @@ export class User {
   // Método estático para crear un nuevo usuario (registro)
   static async create(userData) {
     // Registra un nuevo usuario con Supabase
-    const { data, error } = await supabase.auth.signUp(userData)
-
+    const { data, error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+    });
     // Manejo de errores
     if (error) {
       throw new Error(error.message)
     }
 
+    // Inserta datos en la base de datos
+    const result = await supabase
+    .from('perfiles')
+    .insert([
+      {
+        name: userData.nombre,
+        apellidos: userData.apellidos,
+        email: userData.email,
+        rol: 'registrado',
+      },
+    ]);
+
+// Puedes seguir utilizando result.data y result.error
+// result.data contendrá los datos devueltos por la operación
+// result.error contendrá cualquier error que ocurra
+
+
+    
     // Si el usuario se crea correctamente, devuelve una instancia de User con el ID y el email
     console.log('usuario creado correctamente ', data)
     return new User(data.user.id, data.user.email)
